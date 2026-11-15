@@ -7,6 +7,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
+<script src="firebase-config.js"></script>
 <title>Treino Forte</title>
 <style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f4f5f7;--card:#fff;--tx:#14171c;--mu:#667085;--ac:#e8590c;--ln:#e3e6ea;color-scheme:light}
@@ -53,10 +54,16 @@ small{color:var(--mu)}
 #mini.hide{display:none}#mini .mi{flex:1;min-width:0}#mini iframe{border-radius:8px;display:block}
 #mtitle{font-size:13px;font-weight:600;margin-bottom:6px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 #mFb{color:var(--ac);font-size:12px;display:inline-block;margin-top:4px}#mFb.hide{display:none}
+.hrow{display:flex;align-items:center;gap:12px;justify-content:flex-start}
+#lg{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:20;display:flex;align-items:center;justify-content:center;padding:16px}
+#lg.hide{display:none}.lgbox{width:100%;max-width:380px;max-height:90vh;overflow:auto;margin:0}
+.tabs{display:flex;gap:6px;margin:8px 0}.tabs button{flex:1;padding:10px;border-radius:10px;border:1px solid var(--ln);background:var(--card);color:var(--tx);font-weight:700}
+.tabs button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+#lgMsg{font-size:13px;margin-top:8px;min-height:18px}.err{color:#e03131}.ok2{color:#2f9e44}
 </style>
 </head>
 <body>
-<header class="wrap"><h1>💪 Treino Forte</h1><div class="sub">Musculação de segunda a sábado · massa ou definição</div></header>
+<header class="wrap"><div class="hrow"><h1>💪 Treino Forte</h1><button class="btn" id="lgBtn">Login</button></div><div class="sub">Musculação de segunda a sábado · massa ou definição</div></header>
 <div class="wrap">
 
 <section id="t-treino">
@@ -95,19 +102,39 @@ small{color:var(--mu)}
 </section>
 
 <section id="t-sobre" class="hide">
-  <div class="card"><h2>Base científica</h2><div class="sub">Versão V2 · atualizada (player embutido)</div>
+  <div class="card"><h2>Base científica</h2><div class="sub">Versão V2 · atualizada (login e sincronização)</div>
   <p>A estrutura segue princípios amplamente ensinados por pesquisadores e treinadores de referência: volume semanal de 10–20 séries por grupo muscular, treino próximo da falha, sobrecarga progressiva e frequência de 2x por grupo (Brad Schoenfeld, Mike Israetel, Eric Helms, Jeff Nippard, Layne Norton, Arnold Schwarzenegger – <i>Enciclopédia do Fisiculturismo</i>).</p>
   <p><b>Massa:</b> 6–10 reps pesadas, 90–120 s de descanso, leve superávit calórico. <b>Definição:</b> 10–15 reps, 45–60 s de descanso, déficit moderado, proteína alta e finalizador de cardio.</p>
   <p><b>Equipamentos usados:</b> barra fixa, paralelas, banco para abdominal, supinos reto, inclinado e declinado, rosca Scott, banco extensor, barra com agachamento, halteres e barra W. Nos supinos e no agachamento com carga alta, use suporte de segurança ou peça ajuda a alguém.</p><p>Os vídeos abrem a busca do YouTube pelo exercício; escolha um canal de sua confiança. Os cálculos são estimativas (Mifflin-St Jeor e método da Marinha dos EUA) e não substituem avaliação de médico, nutricionista ou profissional de educação física. Se sentir dor, pare o exercício.</p></div>
 </section>
 </div>
+<div id="lg" class="hide"><div class="card lgbox">
+  <div class="row" style="justify-content:space-between;align-items:center"><h2 id="lgTitle" style="margin:0">Login</h2><button class="btn alt" style="background:none;padding:6px 12px" id="lgX">✕</button></div>
+  <div id="lgSetup" class="hide sub" style="margin-top:8px">O login ainda não foi configurado neste app. Preencha o arquivo <b>firebase-config.js</b> (passo a passo no LEIA-ME) e envie ao GitHub.</div>
+  <div id="lgForm">
+    <div class="tabs"><button id="tIn" class="on">Entrar</button><button id="tNew">Criar conta</button></div>
+    <label>Nome de usuário</label><input id="lgUser" autocomplete="username" autocapitalize="none" placeholder="ex.: joao.silva">
+    <label style="margin-top:8px">Senha</label><input id="lgPass" type="password" autocomplete="current-password">
+    <div class="sub" id="lgRule" style="margin-top:6px">Senha: mínimo 8 caracteres, com letra maiúscula, minúscula, número e caractere especial (ex.: ! @ # $).</div>
+    <div style="margin-top:10px"><button class="btn" id="lgGo" style="width:100%">Entrar</button></div>
+    <div class="sub" style="text-align:center;margin:10px 0">ou</div>
+    <button class="btn alt" style="background:none;width:100%" id="lgGoogle">Conectar-se com a conta do Google</button>
+  </div>
+  <div id="lgIn" class="hide">
+    <p>Conectado como <b id="lgName"></b></p>
+    <div class="sub" id="lgSync">Sincronização ativa.</div>
+    <div style="margin-top:10px"><button class="btn alt" style="background:none" id="lgOut">Sair</button></div>
+    <p class="sub">Ao sair, os dados continuam neste aparelho, mas deixam de ser sincronizados.</p>
+  </div>
+  <div id="lgMsg"></div>
+</div></div>
 <div id="mini" class="hide"><div id="mplayer"></div><div class="mi"><div id="mtitle"></div><div class="row"><button class="btn" id="mNext">⏭ Aleatório</button><button class="btn alt" style="background:none" id="mClose">✕</button></div><a id="mFb" class="hide" target="_blank" rel="noopener">Abrir no YouTube</a></div></div>
 <nav id="nav"><button data-t="treino" class="on">🏋️ Treino</button><button data-t="perfil">📏 Perfil</button><button data-t="evol">📈 Evolução</button><button data-t="sobre">ℹ️ Sobre</button></nav>
 
 <script>
 const $=id=>document.getElementById(id);
 const L=(k,d)=>{try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}};
-const P=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const P=(k,v)=>{try{const n=JSON.stringify(v);if(localStorage.getItem(k)===n)return;localStorage.setItem(k,n);if(typeof syncHook==='function')syncHook(k)}catch(e){}};
 const HIIT='https://www.youtube.com/channel/UChfVp8iHZyEi06A7-suW71g/search?query=HIIT';
 const yt=q=>'https://www.youtube.com/results?search_query='+encodeURIComponent(q);
 const sp=q=>'https://open.spotify.com/search/'+encodeURIComponent(q);
@@ -141,11 +168,11 @@ const HITS=[
 ['g3ZNepK3gOY','30 min Cardio HIIT para gastar + de 500 calorias'],
 ['_WdUkEriE20','20 min Cardio HIIT para gastar 435 calorias - INTENSO']];
 let hi=Math.floor(Math.random()*HITS.length);
-function nextHit(){hi=rnd(HITS.length,hi);renderFinal()}
+function nextHit(){hi=rnd(HITS.length,hi);savePl();renderFinal()}
 function renderFinal(){
   const v=HITS[hi];
   $('final').innerHTML=`<h2>🔥 Finalização com Cardio</h2><div class="sub">${mode=='def'?'15–20 min de HIT (30 s forte / 60 s leve) com pular corda, burpees ou polichinelos, ou corrida/caminhada rápida na rua.':'10–15 min de cardio leve a moderado (caminhada rápida, pular corda ou HIT curto) para o coração, sem atrapalhar a recuperação.'}</div><div style="margin:8px 0;font-weight:600">${v[1]}</div><div class="row"><button class="btn" id="hY">▶ Vídeo HIT</button><button class="btn alt" style="background:none" id="hN">🔀 Outro HIT</button></div><small>Toca aqui dentro do app. Vídeos do canal Renan Gonçalves - Treino em casa. <a href="${HIIT}" target="_blank" rel="noopener" style="color:var(--ac)">Ver mais no canal</a></small>`;
-  $('hY').onclick=()=>{playHit(hi);hi=rnd(HITS.length,hi);renderFinal()};
+  $('hY').onclick=()=>{playHit(hi);hi=rnd(HITS.length,hi);savePl();renderFinal()};
   $('hN').onclick=nextHit;
 }
 function renderTreino(){
@@ -199,8 +226,8 @@ function playHit(i){curH=i;play(HITS[i][0],HITS[i][1],'hit','https://www.youtube
 function renderMus(){
   const m=SONGS[ms];
   $('mus').innerHTML=`<div style="font-weight:600;margin-bottom:8px">${m[1]}</div><div class="row"><button class="btn" id="pY">▶ Tocar hit</button><button class="btn alt" style="background:none" id="pN">🔀 Outra</button></div><small>Toca aqui dentro do app, e você continua usando o treino. <a href="https://www.youtube.com/results?search_query=hits+music+for+bodybuilding+gym+workout" target="_blank" rel="noopener" style="color:var(--ac)">Mais hits de musculação</a></small>`;
-  $('pY').onclick=()=>{playSong(ms);ms=rnd(SONGS.length,ms);renderMus()};
-  $('pN').onclick=()=>{ms=rnd(SONGS.length,ms);renderMus()};
+  $('pY').onclick=()=>{playSong(ms);ms=rnd(SONGS.length,ms);savePl();renderMus()};
+  $('pN').onclick=()=>{ms=rnd(SONGS.length,ms);savePl();renderMus()};
 }
 
 $('mMassa').onclick=()=>{mode='massa';P('mode',mode);renderTreino();calc()};
@@ -297,7 +324,125 @@ document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
 $('mNext').onclick=()=>{if(kind==='hit')playHit(rnd(HITS.length,curH));else playSong(rnd(SONGS.length,curS))};
 $('mClose').onclick=()=>{try{if(YP&&YP.stopVideo)YP.stopVideo()}catch(e){}$('mini').classList.add('hide');pos()};
 window.addEventListener('resize',pos);
+
 loadPerfil();calc();renderTreino();renderEvol();pos();
+
+// ===== Login e sincronização (Firebase) =====
+const SYNCK=['perfil','hist','done','mode','player'];
+const FBV='10.12.2';
+let FA=null,FS=null,UID=null,unsubSnap=null,bootDone=false,applying=false,dirty=new Set(),pushT=null,lgMode='in';
+const cfg=()=>window.TF_FIREBASE||null;
+const fbOk=()=>{const c=cfg();return !!(c&&c.apiKey&&c.projectId&&!/COLE|SEU/i.test(c.apiKey+c.projectId))};
+function savePl(){P('player',{ms,hi})}
+function syncHook(k){
+  if(!bootDone||applying||SYNCK.indexOf(k)<0)return;
+  const t=L('sync_t',{});t[k]=Date.now();localStorage.setItem('sync_t',JSON.stringify(t));
+  dirty.add(k);if(UID){clearTimeout(pushT);pushT=setTimeout(pushNow,800)}
+}
+function setSync(t){const e=$('lgSync');if(e)e.textContent=t}
+async function pushNow(){
+  if(!UID||!FS||!dirty.size)return;
+  const ks=[...dirty];dirty.clear();const t=L('sync_t',{}),data={},tt={};
+  ks.forEach(k=>{const v=localStorage.getItem(k);if(v!=null){data[k]=v;tt[k]=t[k]||Date.now()}});
+  try{await FS.collection('users').doc(UID).set({data,t:tt},{merge:true});setSync('✔ Sincronizado às '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}))}
+  catch(e){ks.forEach(k=>dirty.add(k));setSync('⚠️ Sem conexão. Vou tentar de novo.');clearTimeout(pushT);pushT=setTimeout(pushNow,8000)}
+}
+function refreshUI(){
+  applying=true;
+  try{
+    mode=L('mode','massa');done=L('done',{});
+    const pl=L('player',null);if(pl){if(pl.ms>=0&&pl.ms<SONGS.length)ms=pl.ms;if(pl.hi>=0&&pl.hi<HITS.length)hi=pl.hi}
+    loadPerfil();calc();renderTreino();renderEvol();
+  }finally{applying=false}
+}
+function startSync(){
+  if(unsubSnap)unsubSnap();
+  const ref=FS.collection('users').doc(UID);
+  unsubSnap=ref.onSnapshot(snap=>{
+    if(snap.metadata.hasPendingWrites)return;
+    const d=snap.exists?snap.data():{},rd=d.data||{},rt=d.t||{},lt=L('sync_t',{});let changed=false;
+    SYNCK.forEach(k=>{
+      const r=rt[k]||0,l=lt[k]||0;
+      if(rd[k]!=null&&r>l){applying=true;try{localStorage.setItem(k,rd[k]);lt[k]=r;changed=true}finally{applying=false}}
+      else if(localStorage.getItem(k)!=null&&l>=r&&(l>r||rd[k]==null)){if(!l){lt[k]=Date.now()}dirty.add(k)}
+    });
+    localStorage.setItem('sync_t',JSON.stringify(lt));
+    if(changed)refreshUI();
+    if(dirty.size){clearTimeout(pushT);pushT=setTimeout(pushNow,300)}else setSync('✔ Sincronizado às '+new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}));
+  },e=>setSync('⚠️ Erro de sincronização: '+e.message));
+}
+function loadScript(src){return new Promise((res,rej)=>{const t=document.createElement('script');t.src=src;t.onload=res;t.onerror=rej;document.head.appendChild(t)})}
+async function initFB(){
+  if(FA)return true;if(!fbOk())return false;
+  try{
+    const b='https://www.gstatic.com/firebasejs/'+FBV+'/';
+    await loadScript(b+'firebase-app-compat.js');await loadScript(b+'firebase-auth-compat.js');await loadScript(b+'firebase-firestore-compat.js');
+    firebase.initializeApp(cfg());FA=firebase.auth();FS=firebase.firestore();
+    FA.onAuthStateChanged(onAuth);FA.getRedirectResult().catch(()=>{});
+    return true;
+  }catch(e){return false}
+}
+function userName(u){if(!u)return'';if(u.email&&/@treinoforte\.app$/.test(u.email))return u.email.split('@')[0];return u.displayName||u.email||'usuário'}
+function onAuth(u){
+  UID=u?u.uid:null;
+  $('lgBtn').textContent=u?'👤 '+userName(u):'Login';
+  if(unsubSnap){unsubSnap();unsubSnap=null}
+  if(u){startSync();$('lgName').textContent=userName(u);setSync('Sincronizando...');showLg('in')}else{showLg('form')}
+}
+function showLg(v){
+  $('lgSetup').classList.toggle('hide',v!=='setup');$('lgForm').classList.toggle('hide',v!=='form');$('lgIn').classList.toggle('hide',v!=='in');
+  $('lgTitle').textContent=v==='in'?'Minha conta':'Login';
+}
+function msg(t,ok){const e=$('lgMsg');e.textContent=t||'';e.className=ok?'ok2':'err'}
+const okPass=p=>p.length>=8&&/[A-Z]/.test(p)&&/[a-z]/.test(p)&&/[0-9]/.test(p)&&/[^A-Za-z0-9]/.test(p);
+const okUser=u=>/^[a-z0-9._-]{3,20}$/.test(u);
+function errTxt(e){
+  const c=e&&e.code||'';
+  if(c==='auth/email-already-in-use')return'Este nome de usuário já existe. Escolha outro.';
+  if(/user-not-found|invalid-credential|wrong-password|invalid-login/.test(c))return'Usuário ou senha incorretos.';
+  if(c==='auth/operation-not-allowed')return'Ative este tipo de login no Firebase (Authentication).';
+  if(c==='auth/network-request-failed')return'Sem conexão com a internet.';
+  if(c==='auth/too-many-requests')return'Muitas tentativas. Espere um pouco e tente de novo.';
+  if(c==='auth/unauthorized-domain')return'Este site não está autorizado no Firebase (Authentication → Domínios autorizados).';
+  if(c==='auth/popup-closed-by-user')return'Login cancelado.';
+  return (e&&e.message)||'Não foi possível entrar.';
+}
+async function openLg(){
+  $('lg').classList.remove('hide');msg('');
+  if(!fbOk()){showLg('setup');return}
+  showLg(UID?'in':'form');
+  if(!FA){msg('Carregando...',true);const ok=await initFB();msg(ok?'':'Não consegui carregar o login (verifique a internet).');}
+}
+$('lgBtn').onclick=openLg;
+$('lgX').onclick=()=>$('lg').classList.add('hide');
+$('tIn').onclick=()=>{lgMode='in';$('tIn').className='on';$('tNew').className='';$('lgGo').textContent='Entrar';$('lgPass').autocomplete='current-password';msg('')};
+$('tNew').onclick=()=>{lgMode='new';$('tNew').className='on';$('tIn').className='';$('lgGo').textContent='Criar conta';$('lgPass').autocomplete='new-password';msg('')};
+$('lgGo').onclick=async()=>{
+  if(!FA&&!(await initFB())){msg('Login indisponível agora.');return}
+  const u=$('lgUser').value.trim().toLowerCase(),pw=$('lgPass').value;
+  if(!okUser(u)){msg('Usuário: 3 a 20 caracteres, só letras, números, ponto, hífen ou sublinhado.');return}
+  if(lgMode==='new'&&!okPass(pw)){msg('Senha fraca: use no mínimo 8 caracteres com maiúscula, minúscula, número e caractere especial.');return}
+  if(!pw){msg('Digite a senha.');return}
+  const email=u+'@treinoforte.app';msg('Aguarde...',true);
+  try{
+    if(lgMode==='new'){const c=await FA.createUserWithEmailAndPassword(email,pw);try{await c.user.updateProfile({displayName:u})}catch(x){}}
+    else await FA.signInWithEmailAndPassword(email,pw);
+    $('lgPass').value='';msg('');
+  }catch(e){msg(errTxt(e))}
+};
+$('lgGoogle').onclick=async()=>{
+  if(!FA&&!(await initFB())){msg('Login indisponível agora.');return}
+  const pr=new firebase.auth.GoogleAuthProvider();msg('Aguarde...',true);
+  try{await FA.signInWithPopup(pr);msg('')}
+  catch(e){
+    if(/popup-blocked|operation-not-supported|web-storage-unsupported/.test(e.code||'')){try{await FA.signInWithRedirect(pr);return}catch(x){e=x}}
+    msg(errTxt(e));
+  }
+};
+$('lgOut').onclick=async()=>{if(FA)await FA.signOut();$('lg').classList.add('hide')};
+if(fbOk())initFB();
+
+setTimeout(()=>{bootDone=true},1500);
 </script>
 <script>
 if("serviceWorker" in navigator&&/^https?:/.test(location.protocol)){

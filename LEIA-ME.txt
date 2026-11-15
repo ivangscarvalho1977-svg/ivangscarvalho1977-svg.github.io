@@ -1,7 +1,32 @@
-TREINO FORTE V2 (atualizada)
+TREINO FORTE V2 - login e sincronizacao
 
-Envie TODOS os arquivos para a raiz do repositorio (index.html e sw.js precisam ser substituidos):
-https://github.com/SEU-USUARIO/SEU-USUARIO.github.io/upload/main  > "choose your files" > Commit changes.
+PUBLICAR: envie TODOS os arquivos para a raiz do repositorio do GitHub
+(https://github.com/SEU-USUARIO/SEU-USUARIO.github.io/upload/main > "choose your files" > Commit changes).
+Na aba Sobre, a linha de versao deve dizer "login e sincronizacao".
 
-Como saber se atualizou: no app, aba Sobre, deve aparecer "Versao V2 - atualizada (player embutido)".
-Se nao aparecer: Configuracoes do Android > Apps > Treino Forte > Armazenamento > Limpar cache (nao use "Limpar dados", que apaga suas medidas). Abra o app duas vezes com internet.
+ATIVAR O LOGIN (uma vez so, gratuito) - Firebase:
+1. Acesse console.firebase.google.com > Adicionar projeto (pode desativar o Google Analytics).
+2. Build > Authentication > Comecar > aba "Metodo de login": ative "E-mail/senha" e "Google".
+3. Authentication > Configuracoes > Dominios autorizados > Adicionar dominio: SEU-USUARIO.github.io
+4. Build > Firestore Database > Criar banco de dados (modo de producao; regiao southamerica-east1).
+   Depois, na aba "Regras", cole o texto abaixo e clique em Publicar:
+
+   rules_version = '2';
+   service cloud.firestore {
+     match /databases/{database}/documents {
+       match /users/{uid} {
+         allow read, write: if request.auth != null && request.auth.uid == uid;
+       }
+     }
+   }
+
+5. Engrenagem > Configuracoes do projeto > Seus apps > Web (</>) > registre o app e copie os valores do
+   firebaseConfig para o arquivo firebase-config.js (apiKey, authDomain, projectId, storageBucket,
+   messagingSenderId, appId).
+6. Envie o firebase-config.js preenchido ao GitHub, substituindo o antigo.
+
+OBSERVACOES
+- Conta por usuario e senha usa um e-mail interno (usuario@treinoforte.app). Nao existe recuperacao de senha.
+- O login com Google funciona melhor no navegador (Chrome). No APK, pode nao abrir a janela do Google.
+- Sincronizam: perfil e medidas, historico de evolucao, marcacoes de treino, modo (massa/definicao) e a selecao de hit/video HIT.
+- Ao entrar pela primeira vez em um aparelho que ja tem dados, os dados da nuvem (se existirem) prevalecem.
