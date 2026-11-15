@@ -103,7 +103,7 @@ small{color:var(--mu)}
 </section>
 
 <section id="t-sobre" class="hide">
-  <div class="card"><h2>Base científica</h2><div class="sub">Versão V2 · atualizada (conta com exclusão)</div>
+  <div class="card"><h2>Base científica</h2><div class="sub">Versão V2 · atualizada (conta com e-mail e recuperação)</div>
   <p>A estrutura segue princípios amplamente ensinados por pesquisadores e treinadores de referência: volume semanal de 10–20 séries por grupo muscular, treino próximo da falha, sobrecarga progressiva e frequência de 2x por grupo (Brad Schoenfeld, Mike Israetel, Eric Helms, Jeff Nippard, Layne Norton, Arnold Schwarzenegger – <i>Enciclopédia do Fisiculturismo</i>).</p>
   <p><b>Massa:</b> 6–10 reps pesadas, 90–120 s de descanso, leve superávit calórico. <b>Definição:</b> 10–15 reps, 45–60 s de descanso, déficit moderado, proteína alta e finalizador de cardio.</p>
   <p><b>Equipamentos usados:</b> barra fixa, paralelas, banco para abdominal, supinos reto, inclinado e declinado, rosca Scott, banco extensor, barra com agachamento, halteres e barra W. Nos supinos e no agachamento com carga alta, use suporte de segurança ou peça ajuda a alguém.</p><p>Os vídeos abrem a busca do YouTube pelo exercício; escolha um canal de sua confiança. Os cálculos são estimativas (Mifflin-St Jeor e método da Marinha dos EUA) e não substituem avaliação de médico, nutricionista ou profissional de educação física. Se sentir dor, pare o exercício.</p></div>
@@ -114,10 +114,12 @@ small{color:var(--mu)}
   <div id="lgSetup" class="hide sub" style="margin-top:8px">O login ainda não foi configurado neste app. Preencha o arquivo <b>firebase-config.js</b> (passo a passo no LEIA-ME) e envie ao GitHub.<br><b id="lgDiag"></b></div>
   <div id="lgForm">
     <div class="tabs"><button id="tIn" class="on">Entrar</button><button id="tNew">Criar conta</button></div>
-    <label>Nome de usuário</label><input id="lgUser" autocomplete="username" autocapitalize="none" placeholder="ex.: joao.silva">
+    <div id="lgNickBox" class="hide"><label>Apelido (nome de exibição)</label><input id="lgNick" autocomplete="nickname" placeholder="ex.: João"></div>
+    <label id="lgUserLbl" style="margin-top:8px">E-mail ou usuário</label><input id="lgUser" type="text" autocomplete="username" autocapitalize="none" placeholder="seu@gmail.com">
     <label style="margin-top:8px">Senha</label><input id="lgPass" type="password" autocomplete="current-password">
     <div class="sub" id="lgRule" style="margin-top:6px">Senha: mínimo 8 caracteres, com letra maiúscula, minúscula, número e caractere especial (ex.: ! @ # $).</div>
     <div style="margin-top:10px"><button class="btn" id="lgGo" style="width:100%">Entrar</button></div>
+    <div id="lgForgotBox" style="margin-top:8px;text-align:center"><button class="btn alt" style="background:none;padding:6px 12px" id="lgForgot">Esqueci minha senha</button></div>
     <div class="sub" style="text-align:center;margin:10px 0">ou</div>
     <button class="btn alt" style="background:none;width:100%" id="lgGoogle">Conectar-se com a conta do Google</button>
   </div>
@@ -403,7 +405,7 @@ async function initFB(){
     return true;
   }catch(e){return false}
 }
-function userName(u){if(!u)return'';if(u.email&&/@treinoforte\.app$/.test(u.email))return u.email.split('@')[0];return u.displayName||u.email||'usuário'}
+function userName(u){if(!u)return'';if(u.email&&/@treinoforte\.app$/.test(u.email))return u.email.split('@')[0];return u.displayName||(u.email?u.email.split('@')[0]:'usuário')}
 function onAuth(u){
   UID=u?u.uid:null;
   $('lgBtn').textContent=u?'👤 '+userName(u):'Login';
@@ -419,7 +421,9 @@ const okPass=p=>p.length>=8&&/[A-Z]/.test(p)&&/[a-z]/.test(p)&&/[0-9]/.test(p)&&
 const okUser=u=>/^[a-z0-9._-]{3,20}$/.test(u);
 function errTxt(e){
   const c=e&&e.code||'';
-  if(c==='auth/email-already-in-use')return'Este nome de usuário já existe. Escolha outro.';
+  if(c==='auth/email-already-in-use')return'Este e-mail já tem conta. Use "Entrar" ou "Esqueci minha senha".';
+  if(c==='auth/invalid-email')return'E-mail inválido.';
+  if(c==='auth/weak-password')return'Senha muito fraca.';
   if(/user-not-found|invalid-credential|wrong-password|invalid-login/.test(c))return'Usuário ou senha incorretos.';
   if(c==='auth/operation-not-allowed')return'Ative este tipo de login no Firebase (Authentication).';
   if(c==='auth/network-request-failed')return'Sem conexão com a internet.';
@@ -436,20 +440,44 @@ async function openLg(){
 }
 $('lgBtn').onclick=openLg;
 $('lgX').onclick=()=>$('lg').classList.add('hide');
-$('tIn').onclick=()=>{lgMode='in';$('tIn').className='on';$('tNew').className='';$('lgGo').textContent='Entrar';$('lgPass').autocomplete='current-password';msg('')};
-$('tNew').onclick=()=>{lgMode='new';$('tNew').className='on';$('tIn').className='';$('lgGo').textContent='Criar conta';$('lgPass').autocomplete='new-password';msg('')};
+const okMail=e=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+function setTab(m){
+  lgMode=m;const n=m==='new';
+  $('tNew').className=n?'on':'';$('tIn').className=n?'':'on';
+  $('lgGo').textContent=n?'Criar conta':'Entrar';$('lgPass').autocomplete=n?'new-password':'current-password';
+  $('lgNickBox').classList.toggle('hide',!n);$('lgForgotBox').classList.toggle('hide',n);
+  $('lgUserLbl').textContent=n?'E-mail (para recuperar a senha)':'E-mail ou usuário';
+  $('lgUser').placeholder='seu@gmail.com';msg('');
+}
+$('tIn').onclick=()=>setTab('in');
+$('tNew').onclick=()=>setTab('new');
 $('lgGo').onclick=async()=>{
   if(!FA&&!(await initFB())){msg('Login indisponível agora.');return}
-  const u=$('lgUser').value.trim().toLowerCase(),pw=$('lgPass').value;
-  if(!okUser(u)){msg('Usuário: 3 a 20 caracteres, só letras, números, ponto, hífen ou sublinhado.');return}
-  if(lgMode==='new'&&!okPass(pw)){msg('Senha fraca: use no mínimo 8 caracteres com maiúscula, minúscula, número e caractere especial.');return}
-  if(!pw){msg('Digite a senha.');return}
-  const email=u+'@treinoforte.app';msg('Aguarde...',true);
-  try{
-    if(lgMode==='new'){const c=await FA.createUserWithEmailAndPassword(email,pw);try{await c.user.updateProfile({displayName:u})}catch(x){}}
-    else await FA.signInWithEmailAndPassword(email,pw);
-    $('lgPass').value='';msg('');
-  }catch(e){msg(errTxt(e))}
+  const raw=$('lgUser').value.trim().toLowerCase(),pw=$('lgPass').value;
+  if(lgMode==='new'){
+    const nick=$('lgNick').value.trim();
+    if(nick.length<2||nick.length>20){msg('Apelido: de 2 a 20 caracteres.');return}
+    if(!okMail(raw)||/@treinoforte\.app$/.test(raw)){msg('Digite um e-mail válido (ex.: seunome@gmail.com).');return}
+    if(!okPass(pw)){msg('Senha fraca: use no mínimo 8 caracteres com maiúscula, minúscula, número e caractere especial.');return}
+    msg('Aguarde...',true);
+    try{const c=await FA.createUserWithEmailAndPassword(raw,pw);try{await c.user.updateProfile({displayName:nick})}catch(x){}$('lgPass').value='';msg('')}
+    catch(e){msg(errTxt(e))}
+    return;
+  }
+  if(!raw||!pw){msg('Digite o e-mail (ou usuário) e a senha.');return}
+  const email=raw.indexOf('@')>-1?raw:raw+'@treinoforte.app';
+  msg('Aguarde...',true);
+  try{await FA.signInWithEmailAndPassword(email,pw);$('lgPass').value='';msg('')}
+  catch(e){msg(errTxt(e))}
+};
+$('lgForgot').onclick=async()=>{
+  if(!FA&&!(await initFB())){msg('Login indisponível agora.');return}
+  const raw=$('lgUser').value.trim().toLowerCase();
+  if(raw.indexOf('@')<0||!okMail(raw)){msg('Digite seu e-mail no campo acima. Contas antigas criadas só com usuário não têm recuperação de senha.');return}
+  if(/@treinoforte\.app$/.test(raw)){msg('Contas antigas criadas só com usuário não têm recuperação de senha.');return}
+  msg('Enviando...',true);
+  try{await FA.sendPasswordResetEmail(raw);msg('✔ Se existir uma conta com '+raw+', enviamos o link para redefinir a senha. Veja também a caixa de spam.',true)}
+  catch(e){msg(errTxt(e))}
 };
 $('lgGoogle').onclick=async()=>{
   if(!FA&&!(await initFB())){msg('Login indisponível agora.');return}
