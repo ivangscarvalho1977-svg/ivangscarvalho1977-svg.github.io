@@ -3,5 +3,5 @@ TREINO FORTE V2 (atualizada)
 Envie TODOS os arquivos para a raiz do repositorio (index.html e sw.js precisam ser substituidos):
 https://github.com/SEU-USUARIO/SEU-USUARIO.github.io/upload/main  > "choose your files" > Commit changes.
 
-Como saber se atualizou: no app, aba Sobre, deve aparecer "Versao V2 - atualizada (Hits para Treinar)".
+Como saber se atualizou: no app, aba Sobre, deve aparecer "Versao V2 - atualizada (player embutido)".
 Se nao aparecer: Configuracoes do Android > Apps > Treino Forte > Armazenamento > Limpar cache (nao use "Limpar dados", que apaga suas medidas). Abra o app duas vezes com internet.

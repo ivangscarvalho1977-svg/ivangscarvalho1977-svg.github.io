@@ -49,6 +49,10 @@ nav button.on{color:var(--ac)}
 .scroll{overflow-x:auto}
 .hide{display:none}
 small{color:var(--mu)}
+#mini{position:fixed;left:0;right:0;z-index:5;background:var(--card);border-top:1px solid var(--ln);display:flex;gap:8px;padding:6px 8px;align-items:center}
+#mini.hide{display:none}#mini .mi{flex:1;min-width:0}#mini iframe{border-radius:8px;display:block}
+#mtitle{font-size:13px;font-weight:600;margin-bottom:6px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+#mFb{color:var(--ac);font-size:12px;display:inline-block;margin-top:4px}#mFb.hide{display:none}
 </style>
 </head>
 <body>
@@ -91,13 +95,14 @@ small{color:var(--mu)}
 </section>
 
 <section id="t-sobre" class="hide">
-  <div class="card"><h2>Base científica</h2><div class="sub">Versão V2 · atualizada (Hits para Treinar)</div>
+  <div class="card"><h2>Base científica</h2><div class="sub">Versão V2 · atualizada (player embutido)</div>
   <p>A estrutura segue princípios amplamente ensinados por pesquisadores e treinadores de referência: volume semanal de 10–20 séries por grupo muscular, treino próximo da falha, sobrecarga progressiva e frequência de 2x por grupo (Brad Schoenfeld, Mike Israetel, Eric Helms, Jeff Nippard, Layne Norton, Arnold Schwarzenegger – <i>Enciclopédia do Fisiculturismo</i>).</p>
   <p><b>Massa:</b> 6–10 reps pesadas, 90–120 s de descanso, leve superávit calórico. <b>Definição:</b> 10–15 reps, 45–60 s de descanso, déficit moderado, proteína alta e finalizador de cardio.</p>
   <p><b>Equipamentos usados:</b> barra fixa, paralelas, banco para abdominal, supinos reto, inclinado e declinado, rosca Scott, banco extensor, barra com agachamento, halteres e barra W. Nos supinos e no agachamento com carga alta, use suporte de segurança ou peça ajuda a alguém.</p><p>Os vídeos abrem a busca do YouTube pelo exercício; escolha um canal de sua confiança. Os cálculos são estimativas (Mifflin-St Jeor e método da Marinha dos EUA) e não substituem avaliação de médico, nutricionista ou profissional de educação física. Se sentir dor, pare o exercício.</p></div>
 </section>
 </div>
-<nav><button data-t="treino" class="on">🏋️ Treino</button><button data-t="perfil">📏 Perfil</button><button data-t="evol">📈 Evolução</button><button data-t="sobre">ℹ️ Sobre</button></nav>
+<div id="mini" class="hide"><div id="mplayer"></div><div class="mi"><div id="mtitle"></div><div class="row"><button class="btn" id="mNext">⏭ Aleatório</button><button class="btn alt" style="background:none" id="mClose">✕</button></div><a id="mFb" class="hide" target="_blank" rel="noopener">Abrir no YouTube</a></div></div>
+<nav id="nav"><button data-t="treino" class="on">🏋️ Treino</button><button data-t="perfil">📏 Perfil</button><button data-t="evol">📈 Evolução</button><button data-t="sobre">ℹ️ Sobre</button></nav>
 
 <script>
 const $=id=>document.getElementById(id);
@@ -136,11 +141,12 @@ const HITS=[
 ['g3ZNepK3gOY','30 min Cardio HIIT para gastar + de 500 calorias'],
 ['_WdUkEriE20','20 min Cardio HIIT para gastar 435 calorias - INTENSO']];
 let hi=Math.floor(Math.random()*HITS.length);
-function nextHit(){let n;do{n=Math.floor(Math.random()*HITS.length)}while(n==hi&&HITS.length>1);hi=n;renderFinal()}
+function nextHit(){hi=rnd(HITS.length,hi);renderFinal()}
 function renderFinal(){
   const v=HITS[hi];
-  $('final').innerHTML=`<h2>🔥 Finalização com Cardio</h2><div class="sub">${mode=='def'?'15–20 min de HIT (30 s forte / 60 s leve) com pular corda, burpees ou polichinelos, ou corrida/caminhada rápida na rua.':'10–15 min de cardio leve a moderado (caminhada rápida, pular corda ou HIT curto) para o coração, sem atrapalhar a recuperação.'}</div><div style="margin:8px 0;font-weight:600">${v[1]}</div><div class="row"><a id="hY" class="btn" target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=${v[0]}">▶ Vídeo HIT</a><button class="btn alt" style="background:none" id="hN">🔀 Outro HIT</button></div><small>Vídeos do canal Renan Gonçalves - Treino em casa. <a href="${HIIT}" target="_blank" rel="noopener" style="color:var(--ac)">Ver mais no canal</a></small>`;
-  $('hY').onclick=()=>setTimeout(nextHit,400);$('hN').onclick=nextHit;
+  $('final').innerHTML=`<h2>🔥 Finalização com Cardio</h2><div class="sub">${mode=='def'?'15–20 min de HIT (30 s forte / 60 s leve) com pular corda, burpees ou polichinelos, ou corrida/caminhada rápida na rua.':'10–15 min de cardio leve a moderado (caminhada rápida, pular corda ou HIT curto) para o coração, sem atrapalhar a recuperação.'}</div><div style="margin:8px 0;font-weight:600">${v[1]}</div><div class="row"><button class="btn" id="hY">▶ Vídeo HIT</button><button class="btn alt" style="background:none" id="hN">🔀 Outro HIT</button></div><small>Toca aqui dentro do app. Vídeos do canal Renan Gonçalves - Treino em casa. <a href="${HIIT}" target="_blank" rel="noopener" style="color:var(--ac)">Ver mais no canal</a></small>`;
+  $('hY').onclick=()=>{playHit(hi);hi=rnd(HITS.length,hi);renderFinal()};
+  $('hN').onclick=nextHit;
 }
 function renderTreino(){
   $('mMassa').className=mode=='massa'?'on':'';$('mDef').className=mode=='def'?'on':'';
@@ -158,20 +164,45 @@ function renderTreino(){
   const p=L('perfil',null),kg=p&&+p.peso;
   $('est').textContent=kg?`Gasto estimado: ≈ ${Math.round(5*kg)} kcal em 60 min de musculação`+(mode=='def'?` + ≈ ${Math.round(8*kg/3)} kcal no cardio de 20 min.`:'.'):'Preencha seu peso na aba Perfil para ver o gasto calórico estimado.';
 }
-const MUS=[
-['Tiësto - The Business','Eminem - Till I Collapse','Kanye West - Stronger','50 Cent - In Da Club','Imagine Dragons - Radioactive','Metallica - Enter Sandman','Survivor - Eye of the Tiger','Linkin Park - Faint'],
-['Eminem - Lose Yourself','Rage Against the Machine - Killing in the Name','AC/DC - Thunderstruck','Metallica - Master of Puppets','Travis Scott - SICKO MODE','Kendrick Lamar - HUMBLE.','Lil Jon & The East Side Boyz - Get Low','Pantera - Walk'],
-['David Guetta - Titanium','Martin Garrix - Animals','Swedish House Mafia - Don’t You Worry Child','Skrillex - Bangarang','Zedd - Clarity','Alesso - Heroes','Calvin Harris - Feel So Close','Imagine Dragons - Believer'],
-['Daft Punk - Harder, Better, Faster, Stronger','The Prodigy - Firestarter','Guns N’ Roses - Welcome to the Jungle','Kanye West - Power','Queen - Don’t Stop Me Now','Led Zeppelin - Whole Lotta Love','Eminem - Not Afraid','Tiësto - Jackie Chan'],
-['Alok & Bruno Martini - Hear Me Now','Alok - Big Jet Plane','Marshmello - Alone','Major Lazer - Lean On','Calvin Harris - This Is What You Came For','The Weeknd - Blinding Lights','Dua Lipa - Physical','Kygo - Firestone'],
-['Avicii - Levels','Avicii - Wake Me Up','Avicii - Hey Brother','Pitbull - Timber','Coldplay - Viva la Vida','blink-182 - All The Small Things','Black Eyed Peas - I Gotta Feeling','Ellie Goulding - Love Me Like You Do']];
-const mi={};
-function nextMus(){const l=MUS[day],c=mi[day]||0;let n;do{n=Math.floor(Math.random()*l.length)}while(n==c&&l.length>1);mi[day]=n;renderMus()}
-function renderMus(){
-  const m=MUS[day][mi[day]||0];
-  $('mus').innerHTML=`<div style="font-weight:600;margin-bottom:8px">${m}</div><div class="row"><a id="pY" class="btn" target="_blank" rel="noopener" href="${yt(m+' official music video')}">▶ YouTube</a><a id="pS" class="btn alt" target="_blank" rel="noopener" href="${sp(m)}">Spotify</a><button class="btn alt" style="background:none" id="pN">🔀 Outra</button></div><small>A cada toque em ▶ ou Spotify, o hit abre e o próximo já é sorteado. <a href="https://www.youtube.com/results?search_query=hits+music+for+bodybuilding+gym+workout" target="_blank" rel="noopener" style="color:var(--ac)">Mais hits de musculação</a></small>`;
-  $('pY').onclick=()=>setTimeout(nextMus,400);$('pS').onclick=()=>setTimeout(nextMus,400);$('pN').onclick=nextMus;
+const SONGS=[
+['nCg3ufihKyU','Tiësto - The Business'],['_Yhyp-_hX2s','Eminem - Lose Yourself'],['ytQ5CYE1VZw','Eminem - Till I Collapse'],['PsO6ZnUZI0g','Kanye West - Stronger'],
+['btPJPFnesV4','Survivor - Eye of the Tiger'],['v2AC41dglnM','AC/DC - Thunderstruck'],['CD-E-LDc384','Metallica - Enter Sandman'],['xnKhsTXoKCI','Metallica - Master of Puppets'],
+['bWXazVhlyxQ','Rage Against the Machine - Killing in the Name'],['JRfuAukYTKg','David Guetta - Titanium'],['_ovdm2yX4MA','Avicii - Levels'],['IcrbM1l_BoI','Avicii - Wake Me Up'],
+['1y6smkh6c-0','Swedish House Mafia - Don’t You Worry Child'],['7wtfhZwyrcc','Imagine Dragons - Believer'],['ktvTqknDobU','Imagine Dragons - Radioactive'],['gCYcHz2k5x0','Martin Garrix - Animals'],
+['YqeW9_5kURI','Major Lazer - Lean On'],['4NRXx6U8ABQ','The Weeknd - Blinding Lights'],['LYU-8IFcDPw','Linkin Park - Faint'],['tvTRZJ-4EyI','Kendrick Lamar - HUMBLE.'],
+['6ONRf7h3Mdk','Travis Scott - SICKO MODE'],['gAjR4_CbPpQ','Daft Punk - Harder, Better, Faster, Stronger'],['wmin5WkOuPw','The Prodigy - Firestarter'],['o1tj2zJ2Wvg','Guns N’ Roses - Welcome to the Jungle'],
+['HgzGwKwLmgM','Queen - Don’t Stop Me Now'],['j5-yKhDd64s','Eminem - Not Afraid'],['L53gjP-TtGE','Kanye West - Power'],['5qm8PH4xAss','50 Cent - In Da Club'],
+['YJVmu6yttiw','Skrillex - Bangarang'],['IxxstCcJlsc','Zedd - Clarity'],['hHUbLv4ThOo','Pitbull - Timber'],['9Ht5RZpzPqw','blink-182 - All The Small Things']];
+let ms=0,curS=0,curH=0,YP=null,kind='',errN=0,curP=null;
+function rnd(n,ex){let r;do{r=Math.floor(Math.random()*n)}while(r===ex&&n>1);return r}
+function pos(){const n=$('nav'),m=$('mini');m.style.bottom=n.offsetHeight+'px';document.body.style.paddingBottom=(n.offsetHeight+(m.classList.contains('hide')?0:m.offsetHeight)+12)+'px'}
+function loadYT(cb){
+  if(window.YT&&YT.Player){cb();return}
+  window.onYouTubeIframeAPIReady=cb;
+  if(!document.getElementById('ytapi')){const t=document.createElement('script');t.id='ytapi';t.src='https://www.youtube.com/iframe_api';document.head.appendChild(t)}
 }
+function onErr(){
+  if(kind==='music'&&errN<4){errN++;playSong(rnd(SONGS.length,curS),true);return}
+  $('mtitle').textContent='⚠️ Este vídeo não pode tocar aqui.';$('mFb').href=curP.fb;$('mFb').classList.remove('hide');pos();
+}
+function play(id,title,k,fb){
+  kind=k;curP={id,title,fb};
+  $('mini').classList.remove('hide');$('mtitle').textContent='▶ '+title;$('mFb').classList.add('hide');pos();
+  loadYT(()=>{
+    if(YP&&YP.loadVideoById){YP.loadVideoById(id)}
+    else if(!YP){YP=new YT.Player('mplayer',{width:200,height:113,videoId:id,playerVars:{playsinline:1,rel:0,autoplay:1},events:{onReady:e=>{try{e.target.loadVideoById(curP.id);e.target.playVideo()}catch(x){}},onStateChange:e=>{if(e.data===0&&kind==='music')playSong(rnd(SONGS.length,curS),false)},onError:onErr}})}
+  });
+  setTimeout(pos,300);
+}
+function playSong(i,fromErr){if(!fromErr)errN=0;curS=i;play(SONGS[i][0],SONGS[i][1],'music',yt(SONGS[i][1]+' official music video'))}
+function playHit(i){curH=i;play(HITS[i][0],HITS[i][1],'hit','https://www.youtube.com/watch?v='+HITS[i][0])}
+function renderMus(){
+  const m=SONGS[ms];
+  $('mus').innerHTML=`<div style="font-weight:600;margin-bottom:8px">${m[1]}</div><div class="row"><button class="btn" id="pY">▶ Tocar hit</button><button class="btn alt" style="background:none" id="pN">🔀 Outra</button></div><small>Toca aqui dentro do app, e você continua usando o treino. <a href="https://www.youtube.com/results?search_query=hits+music+for+bodybuilding+gym+workout" target="_blank" rel="noopener" style="color:var(--ac)">Mais hits de musculação</a></small>`;
+  $('pY').onclick=()=>{playSong(ms);ms=rnd(SONGS.length,ms);renderMus()};
+  $('pN').onclick=()=>{ms=rnd(SONGS.length,ms);renderMus()};
+}
+
 $('mMassa').onclick=()=>{mode='massa';P('mode',mode);renderTreino();calc()};
 $('mDef').onclick=()=>{mode='def';P('mode',mode);renderTreino();calc()};
 
@@ -263,7 +294,10 @@ document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
   ['treino','perfil','evol','sobre'].forEach(t=>$('t-'+t).classList.toggle('hide',t!=b.dataset.t));
   window.scrollTo(0,0);
 });
-loadPerfil();calc();renderTreino();renderEvol();
+$('mNext').onclick=()=>{if(kind==='hit')playHit(rnd(HITS.length,curH));else playSong(rnd(SONGS.length,curS))};
+$('mClose').onclick=()=>{try{if(YP&&YP.stopVideo)YP.stopVideo()}catch(e){}$('mini').classList.add('hide');pos()};
+window.addEventListener('resize',pos);
+loadPerfil();calc();renderTreino();renderEvol();pos();
 </script>
 <script>
 if("serviceWorker" in navigator&&/^https?:/.test(location.protocol)){
