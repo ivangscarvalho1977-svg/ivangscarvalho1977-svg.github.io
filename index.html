@@ -91,7 +91,7 @@ small{color:var(--mu)}
 </section>
 
 <section id="t-sobre" class="hide">
-  <div class="card"><h2>Base científica</h2><div class="sub">Versão V2 · atualizada (finalização com cardio HIT)</div>
+  <div class="card"><h2>Base científica</h2><div class="sub">Versão V2 · atualizada (HIT aleatório do canal)</div>
   <p>A estrutura segue princípios amplamente ensinados por pesquisadores e treinadores de referência: volume semanal de 10–20 séries por grupo muscular, treino próximo da falha, sobrecarga progressiva e frequência de 2x por grupo (Brad Schoenfeld, Mike Israetel, Eric Helms, Jeff Nippard, Layne Norton, Arnold Schwarzenegger – <i>Enciclopédia do Fisiculturismo</i>).</p>
   <p><b>Massa:</b> 6–10 reps pesadas, 90–120 s de descanso, leve superávit calórico. <b>Definição:</b> 10–15 reps, 45–60 s de descanso, déficit moderado, proteína alta e finalizador de cardio.</p>
   <p><b>Equipamentos usados:</b> barra fixa, paralelas, banco para abdominal, supinos reto, inclinado e declinado, rosca Scott, banco extensor, barra com agachamento, halteres e barra W. Nos supinos e no agachamento com carga alta, use suporte de segurança ou peça ajuda a alguém.</p><p>Os vídeos abrem a busca do YouTube pelo exercício; escolha um canal de sua confiança. Os cálculos são estimativas (Mifflin-St Jeor e método da Marinha dos EUA) e não substituem avaliação de médico, nutricionista ou profissional de educação física. Se sentir dor, pare o exercício.</p></div>
@@ -126,6 +126,22 @@ function renderDays(){
   $('days').innerHTML=D.map((x,i)=>`<button class="pill ${i==day?'on':''}" data-i="${i}">${x.d}</button>`).join('');
   $('days').querySelectorAll('button').forEach(b=>b.onclick=()=>{day=+b.dataset.i;renderTreino()});
 }
+const HITS=[
+['gf_yaydng4E','28 min de CARDIO EM CASA para queimar 740 calorias'],
+['07jQ_9me0WA','TREINO HIIT ALTA INTENSIDADE, queima de gordura, sem equipamentos'],
+['sKp2aCi55VA','Treino COMBINADO super intenso, 600+ calorias, sem equipamentos'],
+['MQ58sVnLeE8','20 min CARDIO para EMAGRECER em casa'],
+['eDdis7p5PRI','Desafio CARDIO HIIT combinado COMPLETO, 41 min'],
+['3Hj4wZk97JM','30 min de CARDIO HIIT (corpo inteiro)'],
+['g3ZNepK3gOY','30 min Cardio HIIT para gastar + de 500 calorias'],
+['_WdUkEriE20','20 min Cardio HIIT para gastar 435 calorias - INTENSO']];
+let hi=Math.floor(Math.random()*HITS.length);
+function nextHit(){let n;do{n=Math.floor(Math.random()*HITS.length)}while(n==hi&&HITS.length>1);hi=n;renderFinal()}
+function renderFinal(){
+  const v=HITS[hi];
+  $('final').innerHTML=`<h2>🔥 Finalização com Cardio</h2><div class="sub">${mode=='def'?'15–20 min de HIT (30 s forte / 60 s leve) com pular corda, burpees ou polichinelos, ou corrida/caminhada rápida na rua.':'10–15 min de cardio leve a moderado (caminhada rápida, pular corda ou HIT curto) para o coração, sem atrapalhar a recuperação.'}</div><div style="margin:8px 0;font-weight:600">${v[1]}</div><div class="row"><a id="hY" class="btn" target="_blank" rel="noopener" href="https://www.youtube.com/watch?v=${v[0]}">▶ Vídeo HIT</a><button class="btn alt" style="background:none" id="hN">🔀 Outro HIT</button></div><small>Vídeos do canal Renan Gonçalves - Treino em casa. <a href="${HIIT}" target="_blank" rel="noopener" style="color:var(--ac)">Ver mais no canal</a></small>`;
+  $('hY').onclick=()=>setTimeout(nextHit,400);$('hN').onclick=nextHit;
+}
 function renderTreino(){
   $('mMassa').className=mode=='massa'?'on':'';$('mDef').className=mode=='def'?'on':'';
   renderDays();
@@ -136,7 +152,7 @@ function renderTreino(){
     const k=[wk,mode,day,i].join('|');
     return `<div class="ex ${done[k]?'ok':''}"><input type="checkbox" data-k="${k}" ${done[k]?'checked':''}><div style="flex:1"><div class="n">${e[0]}</div><small>${mode=='massa'?e[1]:e[2]} séries x reps</small></div><a class="btn alt" target="_blank" rel="noopener" href="${yt('como fazer '+e[0]+' execução correta')}">▶ Vídeo</a></div>`}).join('');
   $('exs').querySelectorAll('input').forEach(c=>c.onchange=()=>{done[c.dataset.k]=c.checked;P('done',done);c.closest('.ex').classList.toggle('ok',c.checked)});
-  $('final').innerHTML=`<h2>🔥 Finalização com Cardio</h2><div class="sub">${mode=='def'?'15–20 min de HIT (30 s forte / 60 s leve) com pular corda, burpees ou polichinelos, ou corrida/caminhada rápida na rua.':'10–15 min de cardio leve a moderado (caminhada rápida, pular corda ou HIT curto) para o coração, sem atrapalhar a recuperação.'}</div><div style="margin-top:8px"><a class="btn" target="_blank" rel="noopener" href="${HIIT}">▶ Vídeo HIT</a></div><small>Busca no canal Renan Gonçalves - Treino em casa</small>`;
+  renderFinal();
   $('cardio').innerHTML=`<h2>📈 Progressão</h2><div class="sub">${mode=='massa'?'Quando completar o topo das repetições em todas as séries, aumente a carga em 2–5%.':'Mantenha a carga e tente fazer mais repetições ou descansar menos a cada semana; aumente a carga em 2–5% quando completar o topo das repetições.'}</div>`;
   renderMus();renderAj();
   const p=L('perfil',null),kg=p&&+p.peso;
