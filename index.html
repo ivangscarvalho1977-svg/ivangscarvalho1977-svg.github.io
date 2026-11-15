@@ -103,7 +103,7 @@ small{color:var(--mu)}
 </section>
 
 <section id="t-sobre" class="hide">
-  <div class="card"><h2>Base científica</h2><div class="sub">Versão V2 · atualizada (login com diagnóstico)</div>
+  <div class="card"><h2>Base científica</h2><div class="sub">Versão V2 · atualizada (conta com exclusão)</div>
   <p>A estrutura segue princípios amplamente ensinados por pesquisadores e treinadores de referência: volume semanal de 10–20 séries por grupo muscular, treino próximo da falha, sobrecarga progressiva e frequência de 2x por grupo (Brad Schoenfeld, Mike Israetel, Eric Helms, Jeff Nippard, Layne Norton, Arnold Schwarzenegger – <i>Enciclopédia do Fisiculturismo</i>).</p>
   <p><b>Massa:</b> 6–10 reps pesadas, 90–120 s de descanso, leve superávit calórico. <b>Definição:</b> 10–15 reps, 45–60 s de descanso, déficit moderado, proteína alta e finalizador de cardio.</p>
   <p><b>Equipamentos usados:</b> barra fixa, paralelas, banco para abdominal, supinos reto, inclinado e declinado, rosca Scott, banco extensor, barra com agachamento, halteres e barra W. Nos supinos e no agachamento com carga alta, use suporte de segurança ou peça ajuda a alguém.</p><p>Os vídeos abrem a busca do YouTube pelo exercício; escolha um canal de sua confiança. Os cálculos são estimativas (Mifflin-St Jeor e método da Marinha dos EUA) e não substituem avaliação de médico, nutricionista ou profissional de educação física. Se sentir dor, pare o exercício.</p></div>
@@ -126,6 +126,16 @@ small{color:var(--mu)}
     <div class="sub" id="lgSync">Sincronização ativa.</div>
     <div style="margin-top:10px"><button class="btn alt" style="background:none" id="lgOut">Sair</button></div>
     <p class="sub">Ao sair, os dados continuam neste aparelho, mas deixam de ser sincronizados.</p>
+    <div style="border-top:1px solid var(--ln);margin-top:12px;padding-top:12px">
+      <button class="btn" style="background:#e03131" id="lgDelBtn">Excluir minha conta</button>
+      <div id="lgDel" class="hide" style="margin-top:10px">
+        <div class="sub"><b>Atenção:</b> isso apaga a sua conta e todos os dados salvos na nuvem (perfil, medidas, evolução e marcações). Não dá para desfazer.</div>
+        <div id="lgDelPw" style="margin-top:8px"><label>Digite sua senha para confirmar</label><input id="lgDelPass" type="password" autocomplete="current-password"></div>
+        <div id="lgDelG" class="hide sub" style="margin-top:8px">Você vai confirmar com a sua conta do Google.</div>
+        <label style="display:flex;gap:8px;align-items:center;margin-top:8px;font-size:13px;color:var(--tx)"><input type="checkbox" id="lgDelLocal" style="width:20px;height:20px;flex:none"> Apagar também os dados deste aparelho</label>
+        <div class="row" style="margin-top:10px"><button class="btn" style="background:#e03131" id="lgDelGo">Excluir definitivamente</button><button class="btn alt" style="background:none" id="lgDelNo">Cancelar</button></div>
+      </div>
+    </div>
   </div>
   <div id="lgMsg"></div>
 </div></div>
@@ -449,6 +459,29 @@ $('lgGoogle').onclick=async()=>{
     if(/popup-blocked|operation-not-supported|web-storage-unsupported/.test(e.code||'')){try{await FA.signInWithRedirect(pr);return}catch(x){e=x}}
     msg(errTxt(e));
   }
+};
+
+const isGoogle=u=>!!(u&&u.providerData&&u.providerData.some(p=>p.providerId==='google.com'));
+function delReset(){$('lgDel').classList.add('hide');$('lgDelBtn').classList.remove('hide');$('lgDelPass').value='';$('lgDelLocal').checked=false}
+$('lgDelBtn').onclick=()=>{const u=FA&&FA.currentUser;if(!u)return;const g=isGoogle(u);$('lgDelPw').classList.toggle('hide',g);$('lgDelG').classList.toggle('hide',!g);$('lgDel').classList.remove('hide');$('lgDelBtn').classList.add('hide');msg('')};
+$('lgDelNo').onclick=()=>{delReset();msg('')};
+$('lgDelGo').onclick=async()=>{
+  const u=FA&&FA.currentUser;if(!u)return;
+  msg('Aguarde...',true);
+  try{
+    if(isGoogle(u))await u.reauthenticateWithPopup(new firebase.auth.GoogleAuthProvider());
+    else{const pw=$('lgDelPass').value;if(!pw){msg('Digite a senha para confirmar.');return}await u.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(u.email,pw))}
+  }catch(e){msg(errTxt(e));return}
+  const uid=u.uid,limpar=$('lgDelLocal').checked;
+  if(unsubSnap){unsubSnap();unsubSnap=null}dirty.clear();clearTimeout(pushT);UID=null;
+  try{await FS.collection('users').doc(uid).delete()}
+  catch(e){UID=uid;startSync();msg('Não consegui apagar os dados da nuvem: '+errTxt(e));return}
+  try{await u.delete()}
+  catch(e){UID=uid;startSync();msg('Os dados da nuvem foram apagados, mas não consegui excluir a conta: '+errTxt(e));return}
+  try{localStorage.removeItem('sync_t');if(limpar)['perfil','hist','done','mode','player'].forEach(k=>localStorage.removeItem(k))}catch(e){}
+  delReset();
+  if(limpar){location.reload();return}
+  msg('✔ Conta excluída. Os dados continuam neste aparelho.',true);
 };
 $('lgOut').onclick=async()=>{if(FA)await FA.signOut();$('lg').classList.add('hide')};
 if(fbOk())initFB();
