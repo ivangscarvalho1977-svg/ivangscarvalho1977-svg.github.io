@@ -62,7 +62,7 @@ small{color:var(--mu)}
   <div class="card hide" id="ajuste"></div>
   <div class="card" id="final"></div>
   <div class="card" id="cardio"></div>
-  <div class="card"><h2>🎧 Música do treino</h2><div id="mus"></div></div>
+  <div class="card"><h2>🎧 Hits para Treinar</h2><div id="mus"></div></div>
   <div class="card sub" id="est"></div>
 </section>
 
@@ -91,7 +91,7 @@ small{color:var(--mu)}
 </section>
 
 <section id="t-sobre" class="hide">
-  <div class="card"><h2>Base científica</h2><div class="sub">Versão V2 · atualizada (HIT aleatório do canal)</div>
+  <div class="card"><h2>Base científica</h2><div class="sub">Versão V2 · atualizada (Hits para Treinar)</div>
   <p>A estrutura segue princípios amplamente ensinados por pesquisadores e treinadores de referência: volume semanal de 10–20 séries por grupo muscular, treino próximo da falha, sobrecarga progressiva e frequência de 2x por grupo (Brad Schoenfeld, Mike Israetel, Eric Helms, Jeff Nippard, Layne Norton, Arnold Schwarzenegger – <i>Enciclopédia do Fisiculturismo</i>).</p>
   <p><b>Massa:</b> 6–10 reps pesadas, 90–120 s de descanso, leve superávit calórico. <b>Definição:</b> 10–15 reps, 45–60 s de descanso, déficit moderado, proteína alta e finalizador de cardio.</p>
   <p><b>Equipamentos usados:</b> barra fixa, paralelas, banco para abdominal, supinos reto, inclinado e declinado, rosca Scott, banco extensor, barra com agachamento, halteres e barra W. Nos supinos e no agachamento com carga alta, use suporte de segurança ou peça ajuda a alguém.</p><p>Os vídeos abrem a busca do YouTube pelo exercício; escolha um canal de sua confiança. Os cálculos são estimativas (Mifflin-St Jeor e método da Marinha dos EUA) e não substituem avaliação de médico, nutricionista ou profissional de educação física. Se sentir dor, pare o exercício.</p></div>
@@ -159,17 +159,17 @@ function renderTreino(){
   $('est').textContent=kg?`Gasto estimado: ≈ ${Math.round(5*kg)} kcal em 60 min de musculação`+(mode=='def'?` + ≈ ${Math.round(8*kg/3)} kcal no cardio de 20 min.`:'.'):'Preencha seu peso na aba Perfil para ver o gasto calórico estimado.';
 }
 const MUS=[
-['Tiësto - The Business','Tiësto - Jackie Chan','Martin Garrix - Animals','David Guetta - Titanium','Calvin Harris - This Is What You Came For','Axwell Λ Ingrosso - More Than You Know'],
-['Eminem - Till I Collapse','Eminem - Lose Yourself','50 Cent - In Da Club','Linkin Park - Faint','Rage Against the Machine - Killing in the Name','Metallica - Enter Sandman'],
-['Kanye West - Stronger','Survivor - Eye of the Tiger','Imagine Dragons - Believer','AC/DC - Thunderstruck','Queen - Don’t Stop Me Now','Metallica - Master of Puppets'],
-['Swedish House Mafia - Don’t You Worry Child','Avicii - Wake Me Up','Skrillex - Bangarang','Zedd - Clarity','Alesso - Heroes','Daft Punk - Harder, Better, Faster, Stronger'],
-['Alok & Bruno Martini - Hear Me Now','Alok - Big Jet Plane','Kygo - Firestone','Major Lazer - Lean On','Marshmello - Alone','Dua Lipa - Physical'],
-['Avicii - Levels','Avicii - Hey Brother','Calvin Harris - Summer','The Weeknd - Blinding Lights','Coldplay - Viva la Vida','Pitbull - Timber']];
+['Tiësto - The Business','Eminem - Till I Collapse','Kanye West - Stronger','50 Cent - In Da Club','Imagine Dragons - Radioactive','Metallica - Enter Sandman','Survivor - Eye of the Tiger','Linkin Park - Faint'],
+['Eminem - Lose Yourself','Rage Against the Machine - Killing in the Name','AC/DC - Thunderstruck','Metallica - Master of Puppets','Travis Scott - SICKO MODE','Kendrick Lamar - HUMBLE.','Lil Jon & The East Side Boyz - Get Low','Pantera - Walk'],
+['David Guetta - Titanium','Martin Garrix - Animals','Swedish House Mafia - Don’t You Worry Child','Skrillex - Bangarang','Zedd - Clarity','Alesso - Heroes','Calvin Harris - Feel So Close','Imagine Dragons - Believer'],
+['Daft Punk - Harder, Better, Faster, Stronger','The Prodigy - Firestarter','Guns N’ Roses - Welcome to the Jungle','Kanye West - Power','Queen - Don’t Stop Me Now','Led Zeppelin - Whole Lotta Love','Eminem - Not Afraid','Tiësto - Jackie Chan'],
+['Alok & Bruno Martini - Hear Me Now','Alok - Big Jet Plane','Marshmello - Alone','Major Lazer - Lean On','Calvin Harris - This Is What You Came For','The Weeknd - Blinding Lights','Dua Lipa - Physical','Kygo - Firestone'],
+['Avicii - Levels','Avicii - Wake Me Up','Avicii - Hey Brother','Pitbull - Timber','Coldplay - Viva la Vida','blink-182 - All The Small Things','Black Eyed Peas - I Gotta Feeling','Ellie Goulding - Love Me Like You Do']];
 const mi={};
 function nextMus(){const l=MUS[day],c=mi[day]||0;let n;do{n=Math.floor(Math.random()*l.length)}while(n==c&&l.length>1);mi[day]=n;renderMus()}
 function renderMus(){
   const m=MUS[day][mi[day]||0];
-  $('mus').innerHTML=`<div style="font-weight:600;margin-bottom:8px">${m}</div><div class="row"><a id="pY" class="btn" target="_blank" rel="noopener" href="${yt(m+' official music video')}">▶ YouTube</a><a id="pS" class="btn alt" target="_blank" rel="noopener" href="${sp(m)}">Spotify</a><button class="btn alt" style="background:none" id="pN">🔀 Outra</button></div><small>A cada toque em ▶ ou Spotify, a música abre e a próxima já é trocada.</small>`;
+  $('mus').innerHTML=`<div style="font-weight:600;margin-bottom:8px">${m}</div><div class="row"><a id="pY" class="btn" target="_blank" rel="noopener" href="${yt(m+' official music video')}">▶ YouTube</a><a id="pS" class="btn alt" target="_blank" rel="noopener" href="${sp(m)}">Spotify</a><button class="btn alt" style="background:none" id="pN">🔀 Outra</button></div><small>A cada toque em ▶ ou Spotify, o hit abre e o próximo já é sorteado. <a href="https://www.youtube.com/results?search_query=hits+music+for+bodybuilding+gym+workout" target="_blank" rel="noopener" style="color:var(--ac)">Mais hits de musculação</a></small>`;
   $('pY').onclick=()=>setTimeout(nextMus,400);$('pS').onclick=()=>setTimeout(nextMus,400);$('pN').onclick=nextMus;
 }
 $('mMassa').onclick=()=>{mode='massa';P('mode',mode);renderTreino();calc()};
