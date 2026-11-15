@@ -1,0 +1,14 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "io.github.ivangscarvalho1977_svg.twa",
+      "sha256_cert_fingerprints": [
+        "15:B4:E5:E5:90:22:C5:1B:02:C0:E3:BD:6A:91:39:63:4A:6A:E4:FF:3F:78:D3:8E:38:BF:E0:BF:CD:57:AD:BC"
+      ]
+    }
+  }
+]
