@@ -61,6 +61,7 @@ small{color:var(--mu)}
 .tabs{display:flex;gap:6px;margin:8px 0}.tabs button{flex:1;padding:10px;border-radius:10px;border:1px solid var(--ln);background:var(--card);color:var(--tx);font-weight:700}
 .tabs button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
 #lgMsg{font-size:13px;margin-top:8px;min-height:18px}.err{color:#e03131}.ok2{color:#2f9e44}
+.ld{font-size:12px;color:var(--ac);margin-top:2px}
 </style>
 </head>
 <body>
@@ -88,6 +89,8 @@ small{color:var(--mu)}
     </div>
     <label style="margin-top:8px">Nível de atividade fora do treino</label>
     <select id="ativ"><option value="1.375">Leve (treina 1–3x/sem)</option><option value="1.55" selected>Moderado (3–5x/sem)</option><option value="1.725">Intenso (6x/sem)</option><option value="1.9">Muito intenso</option></select>
+    <label style="margin-top:8px">Nível de treino</label>
+    <select id="nivel"><option value="ini">Iniciante</option><option value="med" selected>Médio</option><option value="avc">Avançado</option></select>
   </div>
   <div class="card"><h2>Medidas (cm)</h2>
     <div class="grid" id="meds"></div>
@@ -100,13 +103,18 @@ small{color:var(--mu)}
 
 <section id="t-evol" class="hide">
   <div class="card"><h2>Evolução</h2><div class="scroll" id="evol"></div><div style="margin-top:10px"><button class="btn alt" style="background:none" id="clr">Apagar histórico</button></div></div>
+  <div class="card" id="metaIdeal"></div>
 </section>
 
 <section id="t-sobre" class="hide">
-  <div class="card"><h2>Base científica</h2><div class="sub">Versão V2 · atualizada (conta com e-mail e recuperação)</div>
+  <div class="card"><h2>Base científica</h2><div class="sub">Versão V2 · atualizada (nível, cargas e metas)</div>
   <p>A estrutura segue princípios amplamente ensinados por pesquisadores e treinadores de referência: volume semanal de 10–20 séries por grupo muscular, treino próximo da falha, sobrecarga progressiva e frequência de 2x por grupo (Brad Schoenfeld, Mike Israetel, Eric Helms, Jeff Nippard, Layne Norton, Arnold Schwarzenegger – <i>Enciclopédia do Fisiculturismo</i>).</p>
   <p><b>Massa:</b> 6–10 reps pesadas, 90–120 s de descanso, leve superávit calórico. <b>Definição:</b> 10–15 reps, 45–60 s de descanso, déficit moderado, proteína alta e finalizador de cardio.</p>
   <p><b>Equipamentos usados:</b> barra fixa, paralelas, banco para abdominal, supinos reto, inclinado e declinado, rosca Scott, banco extensor, barra com agachamento, halteres e barra W. Nos supinos e no agachamento com carga alta, use suporte de segurança ou peça ajuda a alguém.</p><p>Os vídeos abrem a busca do YouTube pelo exercício; escolha um canal de sua confiança. Os cálculos são estimativas (Mifflin-St Jeor e método da Marinha dos EUA) e não substituem avaliação de médico, nutricionista ou profissional de educação física. Se sentir dor, pare o exercício.</p></div>
+  <div class="card"><h2>Como calculamos nível, carga e metas</h2>
+  <p><b>Nível:</b> Iniciante (4 exercícios, 3 séries, repetições um pouco mais altas), Médio (treino completo) e Avançado (+1 série nos 2 primeiros exercícios e drop-set nos demais), seguindo a lógica de progressão por nível da <i>Enciclopédia do Fisiculturismo</i> de Arnold Schwarzenegger.</p>
+  <p><b>Carga:</b> a referência do nível Médio é o supino reto com barra a 50 kg. Os demais exercícios usam proporções estimadas em relação ao supino; Iniciante usa 60% e Avançado 140% da carga do Médio. A carga também é ajustada pela sua massa magra, calculada pelo método da Marinha dos EUA. Quando suas medidas (ou a massa magra) crescem na aba Evolução, a carga sugerida sobe. São estimativas iniciais: comece mais leve, mantenha a técnica e deixe 1–3 repetições em reserva.</p>
+  <p><b>Metas:</b> gordura e massa magra pelo método da Marinha dos EUA (pescoço, cintura e quadril), índice de massa livre de gordura (FFMI) e ritmos de ganho típicos por nível. Os limites de gordura por idade seguem o padrão da Marinha dos EUA.</p></div>
 </section>
 </div>
 <div id="lg" class="hide"><div class="card lgbox">
@@ -193,10 +201,10 @@ function renderTreino(){
   renderDays();
   const w=D[day];
   $('dTitle').textContent=w.d+' · '+w.t;
-  $('dInfo').textContent=mode=='massa'?'Foco em carga e progressão · descanso 90–120 s':'Foco em densidade e gasto calórico · descanso 45–60 s';
-  $('exs').innerHTML=w.x.map((e,i)=>{
+  $('dInfo').textContent=infoTxt();
+  $('exs').innerHTML=lvlList(w.x).map((e,i)=>{
     const k=[wk,mode,day,i].join('|');
-    return `<div class="ex ${done[k]?'ok':''}"><input type="checkbox" data-k="${k}" ${done[k]?'checked':''}><div style="flex:1"><div class="n">${e[0]}</div><small>${mode=='massa'?e[1]:e[2]} séries x reps</small></div><a class="btn alt" target="_blank" rel="noopener" href="${yt('como fazer '+e[0]+' execução correta')}">▶ Vídeo</a></div>`}).join('');
+    return `<div class="ex ${done[k]?'ok':''}"><input type="checkbox" data-k="${k}" ${done[k]?'checked':''}><div style="flex:1"><div class="n">${e[0]}</div><small>${lvlScheme(mode=='massa'?e[1]:e[2],i)} séries x reps</small><div class="ld">${loadTxt(e[0])}</div></div><a class="btn alt" target="_blank" rel="noopener" href="${yt('como fazer '+e[0]+' execução correta')}">▶ Vídeo</a></div>`}).join('');
   $('exs').querySelectorAll('input').forEach(c=>c.onchange=()=>{done[c.dataset.k]=c.checked;P('done',done);c.closest('.ex').classList.toggle('ok',c.checked)});
   renderFinal();
   $('cardio').innerHTML=`<h2>📈 Progressão</h2><div class="sub">${mode=='massa'?'Quando completar o topo das repetições em todas as séries, aumente a carga em 2–5%.':'Mantenha a carga e tente fazer mais repetições ou descansar menos a cada semana; aumente a carga em 2–5% quando completar o topo das repetições.'}</div>`;
@@ -236,6 +244,100 @@ function play(id,title,k,fb){
 }
 function playSong(i,fromErr){if(!fromErr)errN=0;curS=i;play(SONGS[i][0],SONGS[i][1],'music',yt(SONGS[i][1]+' official music video'))}
 function playHit(i){curH=i;play(HITS[i][0],HITS[i][1],'hit','https://www.youtube.com/watch?v='+HITS[i][0])}
+// ===== Nível, cargas e metas =====
+const LVLF={ini:0.6,med:1,avc:1.4};
+const NIVN=()=>{const e=$('nivel');return e&&e.value?e.value:'med'};
+const isNum=v=>typeof v==='number'&&isFinite(v)&&v>0;
+function lvlList(x){return NIVN()==='ini'?x.slice(0,4):x}
+function lvlScheme(sc,i){
+  const lv=NIVN();if(lv==='med')return sc;
+  if(/falha/.test(sc)){const n=+sc.split('x')[0];return lv==='ini'?'3x6-10 (sem ir à falha)':(n+1)+'xfalha'}
+  const m=sc.match(/^(\d+)x(\d+)(?:-(\d+))?(.*)$/);if(!m)return sc;
+  const N=+m[1],a=+m[2],b=m[3]?+m[3]:null,rest=m[4]||'';
+  if(lv==='ini'){const n=Math.min(3,N),a2=Math.min(a+2,15),b2=b?Math.min(b+2,Math.max(15,b)):null;return n+'x'+a2+(b2&&b2>a2?'-'+b2:'')+rest}
+  return (i<2?N+1:N)+'x'+a+(b?'-'+b:'')+rest+(i>=2?' + drop-set na última':'');
+}
+function infoTxt(){
+  const lv=NIVN(),m=mode=='massa';
+  if(lv==='ini')return m?'Iniciante · 4 exercícios, 3 séries · foco na técnica · descanso 60–90 s':'Iniciante · 4 exercícios, 3 séries · foco na técnica · descanso 45–60 s';
+  if(lv==='avc')return m?'Avançado · +1 série nos 2 primeiros e drop-set nos demais · descanso 90–120 s':'Avançado · +1 série nos 2 primeiros e drop-set nos demais · descanso 30–45 s';
+  return m?'Foco em carga e progressão · descanso 90–120 s':'Foco em densidade e gasto calórico · descanso 45–60 s';
+}
+// [proporção em relação ao supino reto, tipo (b=barra/aparelho, h=cada halter, u=um halter, c=peso do corpo), grupo]
+const LOADS={
+'Supino reto com barra':[1,'b','peito'],'Supino inclinado com halteres':[0.30,'h','peito'],'Supino declinado com barra':[1.05,'b','peito'],
+'Mergulho nas paralelas (tronco ereto, foco tríceps)':[0,'c','triceps'],'Tríceps testa com barra W':[0.40,'b','triceps'],
+'Barra fixa pegada pronada':[0,'c','costas'],'Remada curvada com barra':[0.80,'b','costas'],'Remada unilateral com halter (apoiado no banco)':[0.35,'h','costas'],
+'Pullover com halter no banco':[0.30,'u','peito'],'Rosca direta com barra W':[0.40,'b','biceps'],'Rosca martelo com halteres':[0.18,'h','biceps'],
+'Agachamento livre com barra':[1.20,'b','coxa'],'Agachamento búlgaro com halteres':[0.25,'h','coxa'],'Cadeira extensora (banco extensor)':[0.70,'b','coxa'],
+'Stiff com halteres':[0.35,'h','coxa'],'Panturrilha em pé com halteres':[0.40,'h','pant'],
+'Desenvolvimento com halteres sentado':[0.25,'h','ombros'],'Elevação lateral com halteres':[0.10,'h','ombros'],'Crucifixo inverso com halteres (curvado)':[0.10,'h','ombros'],'Encolhimento com halteres':[0.45,'h','ombros'],
+'Abdominal no banco declinado':[0,'c',null],'Elevação de pernas na barra fixa':[0,'c',null],
+'Supino inclinado com barra':[0.80,'b','peito'],'Barra fixa supinada (pegada fechada)':[0,'c','costas'],'Mergulho nas paralelas (tronco inclinado, foco peito)':[0,'c','peito'],
+'Remada curvada supinada com barra':[0.75,'b','costas'],'Rosca Scott com barra W':[0.30,'b','biceps'],'Tríceps francês com halter':[0.30,'u','triceps'],
+'Levantamento terra romeno com barra':[1.00,'b','coxa'],'Hip thrust no banco com barra':[1.20,'b','coxa'],'Passada / afundo com halteres':[0.25,'h','coxa'],
+'Agachamento sumô com halter':[0.50,'u','coxa'],'Panturrilha sentada com halter no joelho':[0.60,'u','pant'],'Abdominal infra no banco':[0,'c',null]};
+const MEAS={peito:['peito'],biceps:['bicepsD','bicepsE'],triceps:['tricepsD','tricepsE'],coxa:['coxaD','coxaE'],pant:['pantD','pantE'],ombros:['ombros'],costas:['peito']};
+function leanFactor(){
+  const p=getPerfil(),kg=+p.peso,bf=bodyFat(p);
+  if(!kg||!isFinite(bf))return 1;
+  return Math.min(1.3,Math.max(0.8,kg*(1-bf/100)/60));
+}
+function growthFactor(g){
+  const H=L('hist',[]);if(H.length<2||!g)return 1;
+  const a=H[0],b=H[H.length-1],ks=MEAS[g]||[];
+  const va=ks.map(k=>a[k]).filter(isNum),vb=ks.map(k=>b[k]).filter(isNum);
+  if(va.length&&vb.length){const fa=va.reduce((x,y)=>x+y)/va.length,fb=vb.reduce((x,y)=>x+y)/vb.length;return 1+Math.min(Math.max(2*(fb-fa)/fa,0),0.3)}
+  if(isNum(a.lean)&&isNum(b.lean))return 1+Math.min(Math.max((b.lean-a.lean)/a.lean,0),0.2);
+  return 1;
+}
+function loadTxt(name){
+  const t=LOADS[name];if(!t)return'';
+  const lv=NIVN();
+  if(t[1]==='c')return 'Carga: '+(lv==='ini'?'peso do corpo (use elástico ou apoio se precisar)':lv==='avc'?'peso do corpo + 5–10 kg (mochila ou colete)':'peso do corpo');
+  const base=50*t[0]*LVLF[lv]*leanFactor();
+  const r=v=>{v=Math.max(v,1);return t[1]==='b'?Math.max(2.5,Math.round(v/2.5)*2.5):(v<10?Math.round(v):Math.round(v/2)*2)};
+  const b0=r(base),b1=r(base*growthFactor(t[2]));
+  const u=t[1]==='b'?' kg no total':t[1]==='h'?' kg em cada halter':' kg (1 halter)';
+  return 'Carga sugerida: <b>'+b1+u+'</b>'+(b1>b0?' <span class="up">↑ +'+(b1-b0)+' kg pela evolução</span>':'');
+}
+const parseDt=s=>{const m=String(s).match(/(\d+)\/(\d+)\/(\d+)/);return m?new Date(+m[3],+m[2]-1,+m[1]).getTime():NaN};
+function renderMeta(){
+  const el=$('metaIdeal');if(!el)return;
+  const H=L('hist',[]),p=L('perfil',{}),T='<h2>🎯 Meta ideal</h2>';
+  if(!H.length){el.innerHTML=T+'<div class="sub">Salve ao menos uma medição (com pescoço e cintura) para ver suas metas de massa magra e de gordura.</div>';return}
+  const b=H[H.length-1],men=(p.sexo||'m')!=='f',idade=+p.idade||30,h=(+p.altura||0)/100;
+  if(!isNum(b.peso)||!isNum(b.bf)||!h){el.innerHTML=T+'<div class="sub">Preencha altura, pescoço e cintura'+(men?'':' e quadril')+' no Perfil e salve uma nova medição.</div>';return}
+  const kg=b.peso,bf=b.bf,fat=isNum(b.fat)?b.fat:kg*bf/100,lean=isNum(b.lean)?b.lean:kg-fat,def=mode==='def';
+  const faixa=men?(def?[10,12]:[12,15]):(def?[18,21]:[21,25]),bfT=(faixa[0]+faixa[1])/2;
+  const navyMax=men?(idade<=20?22:idade<=27?23:idade<=39?24:26):(idade<=20?33:idade<=27?34:idade<=39?36:38);
+  const ffmi=lean/(h*h)+6.1*(1.8-h),ffT=men?22:18;
+  const leanT=Math.max((ffT-6.1*(1.8-h))*h*h,lean),wT=leanT/(1-bfT/100),fatT=wT-leanT;
+  const taxa={ini:0.010,med:0.005,avc:0.0025}[NIVN()],meses=(leanT-lean)/(kg*taxa),sem=Math.max(fat-fatT,0)/(kg*0.005);
+  const row=(n,a,m)=>{const d=m-a;return `<tr><td>${n}</td><td>${f(a)}</td><td>${f(m)}</td><td>${d>0?'+':''}${f(d)}</td></tr>`};
+  let h2=T+`<div class="sub">Base: sua última medição (${b.dt}). Faixa ideal de gordura: ${faixa[0]}–${faixa[1]}% · limite da Marinha dos EUA para sua idade: ${navyMax}%.</div>`;
+  h2+=`<table><tr><th></th><th>Atual</th><th>Meta</th><th>Falta</th></tr>${row('Massa magra (kg)',lean,leanT)}${row('Massa gorda (kg)',fat,fatT)}${row('Gordura (%)',bf,bfT)}${row('Peso (kg)',kg,wT)}</table>`;
+  h2+=`<div class="sub" style="margin-top:8px">FFMI atual: ${f(ffmi)} · meta ${ffT} (${men?'bom nível natural':'referência feminina'}).</div>`;
+  const tips=[];
+  if(leanT-lean>0.2)tips.push(`Massa magra: cerca de ${Math.max(1,Math.round(meses))} mês(es) no ritmo típico do seu nível (${f(taxa*100,2)}% do peso por mês).`);else tips.push('Massa magra: você já está na meta; foque em manter e em definir.');
+  if(fat-fatT>0.3)tips.push(`Gordura: cerca de ${Math.max(1,Math.round(sem))} semana(s) perdendo ~0,5% do peso por semana.`);else tips.push('Gordura: dentro da faixa ideal.');
+  tips.push(def?'Prioridade agora (definição): reduzir gordura mantendo a massa magra.':'Prioridade agora (ganho de massa): subir a massa magra mantendo a gordura abaixo de '+faixa[1]+'%.');
+  if(bf>navyMax)tips.push(`Atenção: sua gordura (${f(bf)}%) está acima do limite da Marinha dos EUA para sua idade (${navyMax}%).`);
+  if(H.length>1){
+    const a=H[0],d=(parseDt(b.dt)-parseDt(a.dt))/864e5;
+    if(d>=7&&isNum(a.lean)&&isNum(b.lean)&&isNum(a.fat)&&isNum(b.fat)){
+      const dl=(b.lean-a.lean)/d*30,df=(b.fat-a.fat)/d*30;
+      tips.push(`No seu ritmo: massa magra ${dl>0?'+':''}${f(dl)} kg/mês e gordura ${df>0?'+':''}${f(df)} kg/mês.`);
+      if(!def&&df>0.3&&df>dl)tips.push('Você ganha mais gordura que massa magra: reduza cerca de 100 kcal/dia do superávit.');
+      if(!def&&dl<=0&&d>=14)tips.push('Sem ganho de massa magra no período: aumente cerca de 150–200 kcal/dia e progrida as cargas.');
+      if(def&&dl<-0.2)tips.push('Você está perdendo massa magra: diminua o déficit (~100–150 kcal) e mantenha a proteína em 2,2 g/kg.');
+    }
+  }
+  h2+='<ul style="margin:8px 0 0;padding-left:18px;font-size:14px">'+tips.map(t=>'<li style="margin:4px 0">'+t+'</li>').join('')+'</ul>';
+  el.innerHTML=h2;
+}
+
+function renderEvol(){renderEvol0();renderMeta()}
 function renderMus(){
   const m=SONGS[ms];
   $('mus').innerHTML=`<div style="font-weight:600;margin-bottom:8px">${m[1]}</div><div class="row"><button class="btn" id="pY">▶ Tocar hit</button><button class="btn alt" style="background:none" id="pN">🔀 Outra</button></div><small>Toca aqui dentro do app, e você continua usando o treino. <a href="https://www.youtube.com/results?search_query=hits+music+for+bodybuilding+gym+workout" target="_blank" rel="noopener" style="color:var(--ac)">Mais hits de musculação</a></small>`;
@@ -248,7 +350,7 @@ $('mDef').onclick=()=>{mode='def';P('mode',mode);renderTreino();calc()};
 
 // Perfil
 $('meds').innerHTML=CAMPOS.map(c=>`<div><label>${c[1]}</label><input id="${c[0]}" type="number" inputmode="decimal" step="0.1"></div>`).join('');
-const IDS=['sexo','idade','altura','peso','ativ',...CAMPOS.map(c=>c[0])];
+const IDS=['sexo','idade','altura','peso','ativ','nivel',...CAMPOS.map(c=>c[0])];
 const PARES=[['biceps','Bíceps'],['triceps','Tríceps'],['antebraco','Antebraço'],['coxa','Coxa'],['pant','Panturrilha']];
 const COR={
 biceps:{d:[1,4],t:'Faça rosca Scott unilateral com halter, rosca alternada e martelo unilateral; troque a barra W por halteres.'},
@@ -315,7 +417,7 @@ $('save').onclick=()=>{
 };
 
 // Evolução
-function renderEvol(){
+function renderEvol0(){
   const H=L('hist',[]);
   if(!H.length){$('evol').innerHTML='<div class="sub">Nenhuma medição salva ainda. Preencha o Perfil e toque em “Salvar medição de hoje”.</div>';return}
   const a=H[0],b=H[H.length-1];
