@@ -7,7 +7,8 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
-<script src="firebase-config.js"></script>
+<script>window.__cfgErr='';window.addEventListener('error',function(e){if((e.filename||'').indexOf('firebase-config')>-1)window.__cfgErr=e.message||'erro de sintaxe'});</script>
+<script src="firebase-config.js" onerror="window.__cfgMiss=1"></script>
 <title>Treino Forte</title>
 <style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f4f5f7;--card:#fff;--tx:#14171c;--mu:#667085;--ac:#e8590c;--ln:#e3e6ea;color-scheme:light}
@@ -102,7 +103,7 @@ small{color:var(--mu)}
 </section>
 
 <section id="t-sobre" class="hide">
-  <div class="card"><h2>Base científica</h2><div class="sub">Versão V2 · atualizada (login e sincronização)</div>
+  <div class="card"><h2>Base científica</h2><div class="sub">Versão V2 · atualizada (login com diagnóstico)</div>
   <p>A estrutura segue princípios amplamente ensinados por pesquisadores e treinadores de referência: volume semanal de 10–20 séries por grupo muscular, treino próximo da falha, sobrecarga progressiva e frequência de 2x por grupo (Brad Schoenfeld, Mike Israetel, Eric Helms, Jeff Nippard, Layne Norton, Arnold Schwarzenegger – <i>Enciclopédia do Fisiculturismo</i>).</p>
   <p><b>Massa:</b> 6–10 reps pesadas, 90–120 s de descanso, leve superávit calórico. <b>Definição:</b> 10–15 reps, 45–60 s de descanso, déficit moderado, proteína alta e finalizador de cardio.</p>
   <p><b>Equipamentos usados:</b> barra fixa, paralelas, banco para abdominal, supinos reto, inclinado e declinado, rosca Scott, banco extensor, barra com agachamento, halteres e barra W. Nos supinos e no agachamento com carga alta, use suporte de segurança ou peça ajuda a alguém.</p><p>Os vídeos abrem a busca do YouTube pelo exercício; escolha um canal de sua confiança. Os cálculos são estimativas (Mifflin-St Jeor e método da Marinha dos EUA) e não substituem avaliação de médico, nutricionista ou profissional de educação física. Se sentir dor, pare o exercício.</p></div>
@@ -110,7 +111,7 @@ small{color:var(--mu)}
 </div>
 <div id="lg" class="hide"><div class="card lgbox">
   <div class="row" style="justify-content:space-between;align-items:center"><h2 id="lgTitle" style="margin:0">Login</h2><button class="btn alt" style="background:none;padding:6px 12px" id="lgX">✕</button></div>
-  <div id="lgSetup" class="hide sub" style="margin-top:8px">O login ainda não foi configurado neste app. Preencha o arquivo <b>firebase-config.js</b> (passo a passo no LEIA-ME) e envie ao GitHub.</div>
+  <div id="lgSetup" class="hide sub" style="margin-top:8px">O login ainda não foi configurado neste app. Preencha o arquivo <b>firebase-config.js</b> (passo a passo no LEIA-ME) e envie ao GitHub.<br><b id="lgDiag"></b></div>
   <div id="lgForm">
     <div class="tabs"><button id="tIn" class="on">Entrar</button><button id="tNew">Criar conta</button></div>
     <label>Nome de usuário</label><input id="lgUser" autocomplete="username" autocapitalize="none" placeholder="ex.: joao.silva">
@@ -331,8 +332,18 @@ loadPerfil();calc();renderTreino();renderEvol();pos();
 const SYNCK=['perfil','hist','done','mode','player'];
 const FBV='10.12.2';
 let FA=null,FS=null,UID=null,unsubSnap=null,bootDone=false,applying=false,dirty=new Set(),pushT=null,lgMode='in';
-const cfg=()=>window.TF_FIREBASE||null;
-const fbOk=()=>{const c=cfg();return !!(c&&c.apiKey&&c.projectId&&!/COLE|SEU/i.test(c.apiKey+c.projectId))};
+const cfg=()=>window.TF_FIREBASE||(typeof firebaseConfig!=='undefined'?firebaseConfig:null);
+const fbOk=()=>{const c=cfg();return !!(c&&c.apiKey&&c.projectId&&!/COLE_AQUI/.test(c.apiKey)&&c.projectId!=='SEU-PROJETO')};
+function cfgDiag(){
+  const c=cfg();
+  if(window.__cfgMiss)return'Diagnóstico: o arquivo firebase-config.js não foi encontrado no site.';
+  if(window.__cfgErr)return'Diagnóstico: o firebase-config.js tem um erro ('+window.__cfgErr+'). Use o modelo do arquivo e troque só os valores entre aspas; não cole linhas com import.';
+  if(!c)return'Diagnóstico: o firebase-config.js carregou, mas não define window.TF_FIREBASE.';
+  const f=['apiKey','projectId','appId'].filter(k=>!c[k]);
+  if(f.length)return'Diagnóstico: faltam campos no firebase-config.js: '+f.join(', ')+'.';
+  if(/COLE_AQUI/.test(c.apiKey||'')||c.projectId==='SEU-PROJETO')return'Diagnóstico: o arquivo ainda tem os valores de exemplo (COLE_AQUI / SEU-PROJETO).';
+  return'';
+}
 function savePl(){P('player',{ms,hi})}
 function syncHook(k){
   if(!bootDone||applying||SYNCK.indexOf(k)<0)return;
@@ -409,7 +420,7 @@ function errTxt(e){
 }
 async function openLg(){
   $('lg').classList.remove('hide');msg('');
-  if(!fbOk()){showLg('setup');return}
+  if(!fbOk()){$('lgDiag').textContent=cfgDiag();showLg('setup');return}
   showLg(UID?'in':'form');
   if(!FA){msg('Carregando...',true);const ok=await initFB();msg(ok?'':'Não consegui carregar o login (verifique a internet).');}
 }
