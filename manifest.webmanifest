@@ -1,14 +1,21 @@
 {
+ "id": "./index.html",
  "name": "Treino Forte",
  "short_name": "Treino Forte",
- "description": "Treinos de musculação de segunda a sábado, medidas e evolução.",
+ "description": "Treinos de musculação de segunda a sábado, medidas, simetria e evolução.",
  "lang": "pt-BR",
+ "dir": "ltr",
  "start_url": "./index.html",
  "scope": "./",
  "display": "standalone",
  "orientation": "portrait",
  "background_color": "#0f1115",
  "theme_color": "#0f1115",
+ "categories": [
+  "health",
+  "fitness",
+  "sports"
+ ],
  "icons": [
   {
    "src": "icon-192.png",

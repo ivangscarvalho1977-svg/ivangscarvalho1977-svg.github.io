@@ -1,0 +1,10 @@
+TREINO FORTE v2 - PWA (Chrome no Windows/Android e APK para Android 11+)
+
+Envie os 7 arquivos SOLTOS (sem pasta) para a raiz do repositorio do GitHub Pages,
+substituindo os antigos. O arquivo .nojekyll e invisivel no Windows: se nao aparecer, nao tem problema.
+
+Instalar pelo Chrome (Windows 10 ou Android): abra o site > botao "Instalar app" no topo do app,
+ou menu do Chrome > Instalar app.
+
+Gerar APK: pwabuilder.com > cole o endereco do site > Package for stores > Android.
+Nas opcoes, em "Minimum Android version / API level", use Android 11 (API 30) ou deixe o padrao.

@@ -6,6 +6,7 @@
 <meta name="theme-color" content="#0f1115">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
 <title>Treino Forte</title>
 <style>
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f4f5f7;--card:#fff;--tx:#14171c;--mu:#667085;--ac:#e8590c;--ln:#e3e6ea;color-scheme:light}
@@ -51,7 +52,8 @@ small{color:var(--mu)}
 </style>
 </head>
 <body>
-<header class="wrap"><h1>💪 Treino Forte</h1><div class="sub">Musculação de segunda a sábado · massa ou definição</div></header>
+<header class="wrap"><h1>💪 Treino Forte</h1><div class="sub">Musculação de segunda a sábado · massa ou definição</div>
+<button class="btn hide" id="inst" style="margin-top:8px">📲 Instalar app</button></header>
 <div class="wrap">
 
 <section id="t-treino">
@@ -246,6 +248,11 @@ document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
 });
 loadPerfil();calc();renderTreino();renderEvol();
 </script>
-<script>if("serviceWorker" in navigator&&/^https?:/.test(location.protocol)){try{navigator.serviceWorker.register("sw.js")}catch(e){}}</script>
+<script>
+if("serviceWorker" in navigator&&/^https?:/.test(location.protocol)){try{navigator.serviceWorker.register("sw.js")}catch(e){}}
+let dp=null;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();dp=e;document.getElementById("inst").classList.remove("hide")});
+document.getElementById("inst").onclick=async()=>{if(!dp)return;dp.prompt();try{await dp.userChoice}catch(e){}dp=null;document.getElementById("inst").classList.add("hide")};
+window.addEventListener("appinstalled",()=>document.getElementById("inst").classList.add("hide"));
+</script>
 </body>
 </html>
