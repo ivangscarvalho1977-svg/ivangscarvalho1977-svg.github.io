@@ -1,4 +1,4 @@
-const firebaseConfig = {
+window.TF_FIREBASE = {
   apiKey: "AIzaSyDT2dplA7pDJZ33s0tmUajkdgXtR1b48o8",
   authDomain: "treino-forte-6e25f.firebaseapp.com",
   projectId: "treino-forte-6e25f",
